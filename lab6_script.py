@@ -34,11 +34,11 @@ def get_expected_sha256():
     if resp_msg.status_code == requests.codes.ok:
         file_content = resp_msg.text
         # Extract text file content from response message so we can comapre it later
-        expected_sha256 = file_content.split()[0]
-        return expected_sha256
+        expected_sha = file_content.split()[0]
+        return expected_sha
 
     
-        #a618d66b2f753343402200ad17d92eb6d4ab10db0dd1a098402e2968aa3114c4 this is the expeceted sha for refeence
+        #fda8cbf2ee876be4eb14d7affca3a0746ef4ae78341dbb589cbdddcf912db85c this is the expeceted sha for refeence
     
     
 
@@ -50,25 +50,24 @@ def download_installer():
     # Check whether the download was successful
     if resp_msg.status_code == requests.codes.ok:
         # Extract binary file content from response message
-        installer_data = resp_msg.content
-        return installer_data
+        data = resp_msg.content
+        return data
 
     
     
 
 def installer_ok(installer_data, expected_sha256):
-
-    get_expected_sha256()
-    download_installer()
-
-    if installer_data == expected_sha256(installer_data).hexdigest():
-        save_installer()
-        return installer_data
+        installer_data = hashlib.sha256(installer_data).hexdigest()
+        if installer_data == expected_sha256:
+            return installer_data
+        else:
+            SystemExit(1)
 
 
 def save_installer(installer_data):
-    with open(r'C:\temp\vlc-3.0.17.4-win64.exe') as file:
-        file.write(installer_data)
+    file_content = installer_data.content
+    with open(r'C:\temp\vlc-3.0.17.4-win64.exe', 'w') as file:
+        file.write(file_content)
     return
 
 def run_installer(installer_path):
